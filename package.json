@@ -1,7 +1,7 @@
 {
   "name": "cloud-diagnostics",
   "version": "0.0.2",
-  "description": "Support for Node.js dump diagnostics in Cloud deployments",
+  "description": "Support for Node.js dump diagnostics in cloud deployments",
   "repository": {
     "type": "git",
     "url": "https://github.com/RuntimeTools/cloud-diagnostics.git"
