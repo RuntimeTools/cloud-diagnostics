@@ -1,0 +1,8 @@
+{
+  "name": "cloud-diagnostics options",
+  "nodereport": "api+signal",
+  "heapdump": "api+signal",
+  "coredump": "api+signal",
+  "volume": "var/dumps",
+  "objectstorage": "dumps"
+}

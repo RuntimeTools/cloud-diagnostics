@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ $# -eq 2 ]
+then
+  case "$1" in
+    "node") cf ssh $2 -c "pkill -RTMIN node"
+      ;;
+    "heap") cf ssh $2 -c "pkill -RTMIN+1 node"
+      ;;
+    "core") cf ssh $2 -c "pkill -RTMIN+2 node"
+      ;;
+    *) echo "Usage: cfdump node|heap|core APPLICATION"
+      ;;
+  esac
+else
+  echo "Usage: cfdump node|heap|core APPLICATION"
+fi

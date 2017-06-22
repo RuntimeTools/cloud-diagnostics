@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ $# -eq 2 ]
+then
+  # dump type and pod parameters supplied
+  case "$1" in
+    "node") kubectl exec $2 -- pkill -RTMIN node
+      ;;
+    "heap") kubectl exec $2 -- pkill -RTMIN+1 node
+      ;;
+    "core") kubectl exec $2 -- pkill -RTMIN+2 node
+      ;;
+    *) echo "Usage: kbdump node|heap|core POD [CONTAINER]"
+      ;;
+  esac
+else
+  if [ $# -eq 3 ]
+  then
+    # dump type, pod and container parameters supplied
+    case "$1" in
+      "node") kubectl exec $2 -c $3 -- pkill -RTMIN node
+        ;;
+      "heap") kubectl exec $2 -c $3 -- pkill -RTMIN+1 node
+        ;;
+      "core") kubectl exec $2 -c $3 -- pkill -RTMIN+2 node
+        ;;
+      *) echo "Usage: kbdump node|heap|core POD [CONTAINER]"
+        ;;
+    esac
+  else 
+    echo "Usage: kbdump node|heap|core POD [CONTAINER]"
+  fi
+fi

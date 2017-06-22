@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ $# -eq 2 ]
+then
+  case "$1" in
+    "node") bx ic exec $2 pkill -RTMIN node
+      ;;
+    "heap") bx ic exec $2 pkill -RTMIN+1 node
+      ;;
+    "core") bx ic exec $2 pkill -RTMIN+2 node
+      ;;
+    *) echo "Usage: icdump node|heap|core CONTAINER"
+      ;;
+  esac
+else
+  echo "Usage: icdump node|heap|core CONTAINER"
+fi

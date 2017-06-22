@@ -1,0 +1,21 @@
+{
+  "name": "cloud-diagnostics",
+  "version": "0.0.2",
+  "description": "Support for Node.js dump diagnostics in Cloud deployments",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RuntimeTools/cloud-diagnostics.git"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "cfenv": "^1.0.0",
+    "pkgcloud": "1.4.x",
+    "node-report": "2.2.x",
+    "heapdump": "0.3.x",
+    "gencore": "0.0.x"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
+  "license": "Apache-2.0"
+}

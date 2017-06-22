@@ -1,0 +1,6 @@
+*
+!src/**
+!scripts/**
+!binding.gyp
+!index.js
+!cloud-diagnostics.json
