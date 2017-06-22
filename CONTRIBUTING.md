@@ -10,17 +10,17 @@ We welcome contributions, but request you follow these guidelines.
 
 ## Raising bug reports and feature requests
 
-Please raise any bug reports and feature requests on the project's GitHub [issue tracker](https://github.ibm.com/RuntimeTools/cloud-diagnostics/issues).
+Please raise any bug reports and feature requests on the project's GitHub [issue tracker](https://github.com/RuntimeTools/cloud-diagnostics/issues).
 Be sure to search the list of open and closed issues to see if your problem or request has already been raised.
 
 A good bug report is one that make it easy for us to understand what you were trying to do and what went wrong. Provide as much context as possible so we can try to recreate the issue.
 
 ## Pull requests
 
-In order for us to accept pull requests from a new contributor, the contributor must indicate that they accept and agree to be bound by the terms of the IBM Contributor License Agreement below. Please do this by adding your name to the [AUTHORS file](https://github.ibm.com/RuntimeTools/cloud-diagnostics/blob/master/AUTHORS.md)
+In order for us to accept pull requests from a new contributor, the contributor must indicate that they accept and agree to be bound by the terms of the IBM Contributor License Agreement below. Please do this by adding your name to the [AUTHORS file](AUTHORS.md)
 in your first pull request.
 
-If you want to raise a pull-request for a bug fix or a new feature, we recommend that you raise a [GitHub issue](https://github.ibm.com/RuntimeTools/cloud-diagnostics/issues) to discuss it first.
+If you want to raise a pull-request for a bug fix or a new feature, we recommend that you raise a [GitHub issue](https://github.com/RuntimeTools/cloud-diagnostics/issues) to discuss it first.
 
 ### Coding standards
 
@@ -46,6 +46,6 @@ This agreement applies to all Contributions You Submit.
 
 - You are not expected to provide support for Your Contribution. However you may provide support for free, for a fee or not at all. You provide Your Contribution on an "AS IS" BASIS as stated in the License.
 
-You will promptly notify the Project if You become aware of any facts or circumstances that would make these commitments inaccurate in any way. To do so, please raise an issue on the project's GitHub [issue tracker](https://github.ibm.com/RuntimeTools/cloud-diagnostics/issues).
+You will promptly notify the Project if You become aware of any facts or circumstances that would make these commitments inaccurate in any way. To do so, please raise an issue on the project's GitHub [issue tracker](https://github.com/RuntimeTools/cloud-diagnostics/issues).
 If You think the Project could make use of content which You did not author, please talk to a committer on the Project.
 
