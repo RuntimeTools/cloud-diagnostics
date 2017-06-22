@@ -21,11 +21,11 @@ CMD node -r cloud-diagnostics app.js
 ```
 3) If you are using the Object Storage service to save your dumps, connect the Object Storage service to your cloud application, and create a storage container in the service. If you use `dumps` for the storage container name, no further configuration is require. If you use a different name you will need to supply the name in a `cloud-diagnostics.json` options file, see below.
 
-4) If you are using NFS file storage (persistent volumes) to save your dumps, mount the persistent volume to your container. If you use `/var/dumps` as your volume path, no further configuration is require. If you use a different name you will need to supply the name in a JSON options file, see below.
+4) If you are using NFS file storage (persistent volumes) to save your dumps, mount the persistent volume to your container. If you use `/var/dumps` as your volume path, no further configuration is require. If you use a different name you will need to supply the name in a `cloud-diagnostics.json` options file, see below.
 
 5) Use the JavaScript APIs or external signals documented below to trigger dumps.
 
-## Triggering of dumps using JavaScript APIs
+## Triggering dumps using JavaScript APIs
 
 The module provides the following JavaScript APIs for writing dumps to persistent storage:
 ```js
@@ -62,7 +62,7 @@ diagnostics.initObjectStore(credentials,'dump container name');
 ```
 You can use the `diagnostics.connected()` API to check whether the module has an Object Storage service connected.
 
-## Triggering of dumps using external signals
+## Triggering dumps using external signals
 
 The module also supports dump triggering via external signals sent to the Node.js process. The module has native signal handlers for the Linux real-time signals SIGRTMIN, SIGRTMIN+1, SIGRTMIN+2. These signals are handled by the cloud-diagnostics module and trigger a node-report, heapdump or core dump respectively.
 
