@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 //=============================================================================
-// Main module entry point for ibmcloud-diagnostics module
+// Main module entry point for cloud-diagnostics module
 //=============================================================================
 
 const nodereport = require('node-report/api');
@@ -30,7 +30,7 @@ var objectStorageClient;
 var objectStorageContainer;
 var dumpSeqNum = 1;
 var options = {
-  "name": "ibmcloud-diagnostics options",
+  "name": "cloud-diagnostics",
   "nodereport": "api+signal",
   "heapdump": "api+signal",
   "coredump": "api+signal",
@@ -41,22 +41,22 @@ var options = {
 //-----------------------------------------------------------------------------
 // Initialization - set up dump storage location and dump trigger actions
 //-----------------------------------------------------------------------------
-console.log('ibmcloud-diagnostics: initializing dump storage options and signal handlers');
+console.log('cloud-diagnostics: initializing dump storage options and signal handlers');
 
 // Parse options file, if any
 try {
-  options = JSON.parse(fs.readFileSync('ibmcloud-diagnostics.json', 'utf8'));
-  console.log('ibmcloud-diagnostics: options: ' + JSON.stringify(options));
+  options = JSON.parse(fs.readFileSync('cloud-diagnostics.json', 'utf8'));
+  console.log('cloud-diagnostics: options: ' + JSON.stringify(options));
 } catch (err) {
-  console.log('ibmcloud-diagnostics: no ibmcloud-diagnostics.json options file found, using defaults');
+  console.log('cloud-diagnostics: no cloud-diagnostics.json options file found, using defaults');
 }
 
 // Process persistent volume option, check if the specified volume mount point for dumps exists
 if (fs.existsSync(options.volume)) {
   volumeMount = options.volume;
+  console.log('cloud-diagnostics: using NFS file system ' + volumeMount + ' for dumps');
 } else {
   // No persistent volume mount point available, next see if object storage is available 
-  console.log('ibmcloud-diagnostics: no persistent volume available for dumps');
   objectStorageContainer = options.objectstorage; // TODO: create container if it does not exist?
 
   // Look for Object Storage service credentials
@@ -72,8 +72,9 @@ if (fs.existsSync(options.volume)) {
     serviceCredentials.tenantId = serviceCredentials.projectId;
     serviceCredentials.authUrl = serviceCredentials.auth_url;
     objectStorageClient = pkgcloud.storage.createClient(serviceCredentials);
+    console.log('cloud-diagnostics: using Object Storage service for dumps');
   } else {
-    console.log('ibmcloud-diagnostics: no object storage available for dumps');
+    console.log('cloud-diagnostics: no persistent storage available for dumps, using local disk');
   }
 }
 
@@ -83,11 +84,11 @@ native.setSignals(signal_callback);
 
 // Set up additional dump triggers. TODO: control via options for the other dump triggers (api and signal)
 if (options.nodereport.includes("exception")) {
-  console.log('ibmcloud-diagnostics: set trigger for node report on uncaught exception');
+  console.log('cloud-diagnostics: set trigger for node report on uncaught exception');
   process.on('uncaughtException', (err) => {
-    console.log('ibmcloud-diagnostics: triggering node report on uncaught exception');
+    console.log('cloud-diagnostics: triggering node report on uncaught exception');
     exports.storeNodeReport((error, filename) => {
-      console.log('ibmcloud-diagnostics: exception triggered node report written to: ' + filename);
+      console.log('cloud-diagnostics: exception triggered node report written to: ' + filename);
     });
   });
 }
@@ -96,22 +97,22 @@ if (options.nodereport.includes("exception")) {
 // Callback for native signal dump trigger
 //-----------------------------------------------------------------------------
 function signal_callback(err, dump_type) {
-  // console.log('ibmcloud-diagnostics: signal callback invoked for dump type: ' + dump_type);
+  // console.log('cloud-diagnostics: signal callback invoked for dump type: ' + dump_type);
   
   switch (dump_type) {
   case 'nodereport':
     exports.storeNodeReport((error, filename) => {
-      // console.log('ibmcloud-diagnostics: signal triggered node report written to: ' + filename);
+      // console.log('cloud-diagnostics: signal triggered node report written to: ' + filename);
     });
     break;
   case 'heapdump':
     exports.storeHeapDump((error, filename) => {
-      // console.log('ibmcloud-diagnostics: signal triggered heapdump written to: ' + filename);
+      // console.log('cloud-diagnostics: signal triggered heapdump written to: ' + filename);
     });
     break;
   case 'coredump':
     exports.storeCoreDump((error, filename) => {
-      // console.log('ibmcloud-diagnostics: signal triggered core dump written to: ' + filename);
+      // console.log('cloud-diagnostics: signal triggered core dump written to: ' + filename);
     });
     break;
   }
@@ -121,7 +122,7 @@ function signal_callback(err, dump_type) {
 // Initializer for Object Storage - pass in credentials
 //-----------------------------------------------------------------------------
 exports.initObjectStore = function(credentials) {
-  console.log('ibmcloud-diagnostics: initializing Object Storage credentials');
+  console.log('cloud-diagnostics: initializing Object Storage credentials');
   objectStorageClient = pkgcloud.storage.createClient(credentials);
 }
 
@@ -129,7 +130,7 @@ exports.initObjectStore = function(credentials) {
 // Initializer for Object Storage dump directory (aka 'container')
 //-----------------------------------------------------------------------------
 exports.setContainer = function(container) {
-  console.log('ibmcloud-diagnostics: initializing Object Storage container name');
+  console.log('cloud-diagnostics: initializing Object Storage container name');
   objectStorageContainer = container;
   
   // TODO create dump container if it does not already exist?
@@ -152,14 +153,14 @@ exports.connected = function() {
 // Function to trigger node-report and write the report to persistent storage
 //-----------------------------------------------------------------------------
 exports.storeNodeReport = function(callback) {
-  console.log('ibmcloud-diagnostics: request for node report to persistent storage');
+  console.log('cloud-diagnostics: request for node report to persistent storage');
   
   if (volumeMount) {
     // First choice, we have a persistent volume mounted (eg for a docker container
     // running in kubernetes), so use that for persisting the dump
     nodereport.setDirectory(volumeMount);
     var filename = nodereport.triggerReport();
-    console.log('ibmcloud-diagnostics: node report written to persistent volume: ' + volumeMount + '/' + filename);
+    console.log('cloud-diagnostics: node report written to persistent volume: ' + volumeMount + '/' + filename);
     setImmediate(callback, null, volumeMount + '/' + filename);
 
   } else if (objectStorageClient !== undefined) {
@@ -172,12 +173,12 @@ exports.storeNodeReport = function(callback) {
 
     // Add error and success handlers to the write stream
     writeStream.on('error', function(err) {
-      console.log('ibmcloud-diagnostics: Error writing to stream: ' + err);
+      console.log('cloud-diagnostics: Error writing to stream: ' + err);
       fs.unlink(report, () => {});
       setImmediate(callback, err, null);
     });
     writeStream.on('success', function(file) {
-      console.log('ibmcloud-diagnostics: node report written to Object Storage: ' + file.container + '/' + file.name);
+      console.log('cloud-diagnostics: node report written to Object Storage: ' + file.container + '/' + file.name);
       fs.unlink(report, () => {});
       setImmediate(callback, null, file.container + '/' + file.name);
     });
@@ -188,7 +189,7 @@ exports.storeNodeReport = function(callback) {
   } else {
     // Fallback to use the local file system for the report
     var filename = nodereport.triggerReport();
-    console.log('ibmcloud-diagnostics: node report written to local disk: ' + filename);
+    console.log('cloud-diagnostics: node report written to local disk: ' + filename);
     setImmediate(callback, null, filename);
   }
 }
@@ -197,7 +198,7 @@ exports.storeNodeReport = function(callback) {
 // Function to trigger a heapdump and write the dump to persistent storage
 //-----------------------------------------------------------------------------
 exports.storeHeapDump = function(callback) {
-  console.log('ibmcloud-diagnostics: request for heap dump to persistent storage');
+  console.log('cloud-diagnostics: request for heap dump to persistent storage');
 
   if (volumeMount) {
     // First choice, we have a persistent volume mounted (eg for a docker container
@@ -208,7 +209,7 @@ exports.storeHeapDump = function(callback) {
     var timestamp = '.' + date.getFullYear() + (date.getMonth()+1) + date.getDate() + '.'
                   + date.getHours() + date.getMinutes() + date.getSeconds();
     heapdump.writeSnapshot(volumeMount + '/heapdump' + timestamp + '.heapsnapshot', function(err, filename) {
-      console.log('ibmcloud-diagnostics: heapdump written to persistent volume: ' + volumeMount + '/' + filename);
+      console.log('cloud-diagnostics: heapdump written to persistent volume: ' + volumeMount + '/' + filename);
       setImmediate(callback, null, volumeMount + '/' + filename);
     });
 
@@ -222,12 +223,12 @@ exports.storeHeapDump = function(callback) {
 
      // Add error and success handlers to the write stream
       writeStream.on('error', function(err) {
-        console.log('ibmcloud-diagnostics: Error writing to stream: ' + err);
+        console.log('cloud-diagnostics: Error writing to stream: ' + err);
         fs.unlink(filename, () => {});
         setImmediate(callback, err, null);
       });
       writeStream.on('success', function(file) {
-        console.log('ibmcloud-diagnostics: heapdump written to Object Storage: ' + file.container + '/' + file.name);
+        console.log('cloud-diagnostics: heapdump written to Object Storage: ' + file.container + '/' + file.name);
         fs.unlink(filename, () => {});
         setImmediate(callback, null, file.container + '/' + file.name);
       });
@@ -244,7 +245,7 @@ exports.storeHeapDump = function(callback) {
     var timestamp = '.' + date.getFullYear() + (date.getMonth()+1) + date.getDate() + '.'
                   + date.getHours() + date.getMinutes() + date.getSeconds();
     heapdump.writeSnapshot('/heapdump' + timestamp + '.heapsnapshot', function(err, filename) {
-      console.log('ibmcloud-diagnostics: heapdump written to local disk: ' + filename);
+      console.log('cloud-diagnostics: heapdump written to local disk: ' + filename);
       setImmediate(callback, null, filename);
     });
   }
@@ -256,10 +257,10 @@ exports.storeHeapDump = function(callback) {
 // dump and libraries.
 //-----------------------------------------------------------------------------
 exports.storeCoreDump = function(callback) {
-  console.log('ibmcloud-diagnostics: request for core dump to Object Storage');
+  console.log('cloud-diagnostics: request for core dump to Object Storage');
   
   if (process.platform == 'win32') {
-    console.log('ibmcloud-diagnostics: storeCoreDump() function not supported on Windows.');
+    console.log('cloud-diagnostics: storeCoreDump() function not supported on Windows.');
     setImmediate(callback, new Error('function not supported on Windows'));
     return;
   }
@@ -267,19 +268,19 @@ exports.storeCoreDump = function(callback) {
   // Run the gencore facility to create the dump and zip it up with the libraries
   gencore.collectCore((error, filename) => {
     if (error === null) {
-      console.log('ibmcloud-diagnostics: temporary core dump zip file written to ' + filename);
+      console.log('cloud-diagnostics: temporary core dump zip file written to ' + filename);
 
       if (volumeMount) {
         // First choice, we have a persistent volume mounted (eg for a docker container
         // running in kubernetes), so use that for persisting the dump
         fs.rename(filename, volumeMount + '/' + filename, function(err) {
           if (error === null) {
-            console.log('ibmcloud-diagnostics: core dump written to persistent volume: '
+            console.log('cloud-diagnostics: core dump written to persistent volume: '
                         + volumeMount + '/' + filename);
             fs.unlink(filename, () => {});
             setImmediate(callback, null, volumeMount + '/' + filename);
           } else {
-            console.log('ibmcloud-diagnostics: error writing core dump to persistent volume');
+            console.log('cloud-diagnostics: error writing core dump to persistent volume');
             setImmediate(callback, err, null);
           }
         });
@@ -291,12 +292,12 @@ exports.storeCoreDump = function(callback) {
 
         // Add error and success handlers to the write stream
         writeStream.on('error', function(err) {
-          console.log('ibmcloud-diagnostics: Error writing to stream: ' + err);
+          console.log('cloud-diagnostics: Error writing to stream: ' + err);
           fs.unlink(filename, () => {});
           setImmediate(callback, err, null);
         });
         writeStream.on('success', function(file) {
-          console.log('ibmcloud-diagnostics: core dump written to Object Storage container: '
+          console.log('cloud-diagnostics: core dump written to Object Storage container: '
                       + file.container + '/' + file.name);
           fs.unlink(filename, () => {});
           setImmediate(callback, null, file.container + '/' + file.name);
@@ -306,11 +307,11 @@ exports.storeCoreDump = function(callback) {
         readStream.pipe(writeStream);
       } else {
         // Fallback is just to leave the dump in the local file system
-        console.log('ibmcloud-diagnostics: core dump written to local disk: ' + filename);
+        console.log('cloud-diagnostics: core dump written to local disk: ' + filename);
         setImmediate(callback, null, filename);
       }
     } else {
-      console.log('ibmcloud-diagnostics: gencore.collectCore() failed' + error);
+      console.log('cloud-diagnostics: gencore.collectCore() failed' + error);
       setImmediate(callback, error, null);
     }
   });
@@ -320,7 +321,7 @@ exports.storeCoreDump = function(callback) {
 // Function to trigger node-report and write the report to local disk
 //-----------------------------------------------------------------------------
 exports.writeNodeReport = function() {
-  console.log('ibmcloud-diagnostics: request for node report to application directory');
+  console.log('cloud-diagnostics: request for node report to application directory');
   nodereport.triggerReport();
 }
 
@@ -328,7 +329,7 @@ exports.writeNodeReport = function() {
 // Function to trigger heapdump and write the dump to local disk
 //-----------------------------------------------------------------------------
 exports.writeHeapDump = function() {
-  console.log('ibmcloud-diagnostics: request for heap dump to application directory');
+  console.log('cloud-diagnostics: request for heap dump to application directory');
   heapdump.writeSnapshot();
 }
 
@@ -336,13 +337,13 @@ exports.writeHeapDump = function() {
 // Function to trigger a core dump and write the dump to local disk
 //-----------------------------------------------------------------------------
 exports.writeCoreDump = function() {
-  console.log('ibmcloud-diagnostics: request for core dump to application directory');
+  console.log('cloud-diagnostics: request for core dump to application directory');
   if (process.platform == 'win32') {
-    console.log('ibmcloud-diagnostics: writeCoreDump() function not supported on Windows.');
+    console.log('cloud-diagnostics: writeCoreDump() function not supported on Windows.');
     return;
   }
   gencore.createCore((error, filename) => {
-    console.log('ibmcloud-diagnostics: core dump written to ' + filename);
+    console.log('cloud-diagnostics: core dump written to ' + filename);
   });
 }
 

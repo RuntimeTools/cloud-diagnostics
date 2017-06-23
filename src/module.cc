@@ -16,7 +16,7 @@
 
 #include <nan.h>
 
-namespace ibmcloud_diagnostics {
+namespace cloud_diagnostics {
 using v8::Local;
 using v8::Function;
 using v8::Value;
@@ -33,7 +33,7 @@ static uv_signal_t signal_handle[3];
 //=============================================================================
 inline void OnSignal(uv_signal_t* handle, int signo) {
   Nan::HandleScope scope;
-  fprintf(stdout, "ibmcloud-diagnostics: signal handler called for signal: %d\n", signo);
+  fprintf(stdout, "cloud-diagnostics: signal handler called for signal: %d\n", signo);
 #if !(defined(__APPLE__) || defined(_WIN32))
   v8::Isolate* isolate = reinterpret_cast<Isolate*>(handle->data);
 
@@ -62,11 +62,11 @@ NAN_METHOD(SetSignals) {
   if (info[0]->IsFunction()) {
     signal_callback.SetFunction(info[0].As<Function>());
   } else {
-    fprintf(stderr, "ibmcloud-diagnostics: internal error, no callback supplied on SetSignals() call\n");
+    fprintf(stderr, "cloud-diagnostics: internal error, no callback supplied on SetSignals() call\n");
     return; // error, no callback supplied
   }
   // Setup the signal handlers
-  fprintf(stdout, "ibmcloud-diagnostics: setting up signal handlers\n");
+  // fprintf(stdout, "cloud-diagnostics: setting up signal handlers\n");
   for (int i = 0; i < 3; i++) {
     uv_signal_init(uv_default_loop(), &signal_handle[i]);
     uv_signal_start(&signal_handle[i], OnSignal, SIGRTMIN + i);
@@ -87,4 +87,4 @@ void Initialize(v8::Local<v8::Object> exports) {
 
 NODE_MODULE(native, Initialize)
 
-}  // namespace ibmcloud_diagnostics
+}  // namespace cloud_diagnostics

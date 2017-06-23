@@ -1,5 +1,5 @@
 {
-  "name": "cloud-diagnostics options",
+  "name": "cloud-diagnostics",
   "nodereport": "api+signal",
   "heapdump": "api+signal",
   "coredump": "api+signal",
