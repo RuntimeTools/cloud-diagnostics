@@ -209,8 +209,8 @@ exports.storeHeapDump = function(callback) {
     var timestamp = '.' + date.getFullYear() + (date.getMonth()+1) + date.getDate() + '.'
                   + date.getHours() + date.getMinutes() + date.getSeconds();
     heapdump.writeSnapshot(volumeMount + '/heapdump' + timestamp + '.heapsnapshot', function(err, filename) {
-      console.log('cloud-diagnostics: heapdump written to persistent volume: ' + volumeMount + '/' + filename);
-      setImmediate(callback, null, volumeMount + '/' + filename);
+      console.log('cloud-diagnostics: heapdump written to persistent volume: ' + filename);
+      setImmediate(callback, null, filename);
     });
 
   } else if (objectStorageClient !== undefined) {
