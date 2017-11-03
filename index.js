@@ -153,7 +153,7 @@ exports.connected = function() {
 // Function to trigger node-report and write the report to persistent storage
 //-----------------------------------------------------------------------------
 exports.storeNodeReport = function(callback) {
-  console.log('cloud-diagnostics: request for node report to persistent storage');
+  console.log('cloud-diagnostics: processing request for node report');
   
   if (volumeMount) {
     // First choice, we have a persistent volume mounted (eg for a docker container
@@ -198,7 +198,7 @@ exports.storeNodeReport = function(callback) {
 // Function to trigger a heapdump and write the dump to persistent storage
 //-----------------------------------------------------------------------------
 exports.storeHeapDump = function(callback) {
-  console.log('cloud-diagnostics: request for heap dump to persistent storage');
+  console.log('cloud-diagnostics: processing request for heap dump');
 
   if (volumeMount) {
     // First choice, we have a persistent volume mounted (eg for a docker container
@@ -244,7 +244,7 @@ exports.storeHeapDump = function(callback) {
     var date = new Date();
     var timestamp = '.' + date.getFullYear() + (date.getMonth()+1) + date.getDate() + '.'
                   + date.getHours() + date.getMinutes() + date.getSeconds();
-    heapdump.writeSnapshot('/heapdump' + timestamp + '.heapsnapshot', function(err, filename) {
+    heapdump.writeSnapshot('heapdump' + timestamp + '.heapsnapshot', function(err, filename) {
       console.log('cloud-diagnostics: heapdump written to local disk: ' + filename);
       setImmediate(callback, null, filename);
     });
@@ -257,7 +257,7 @@ exports.storeHeapDump = function(callback) {
 // dump and libraries.
 //-----------------------------------------------------------------------------
 exports.storeCoreDump = function(callback) {
-  console.log('cloud-diagnostics: request for core dump to Object Storage');
+  console.log('cloud-diagnostics: processing request for core dump');
   
   if (process.platform == 'win32') {
     console.log('cloud-diagnostics: storeCoreDump() function not supported on Windows.');
