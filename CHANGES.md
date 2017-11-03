@@ -1,3 +1,9 @@
+2017-11-03, Version 1.0.1
+=========================
+
+ * Fix pathname for heapdumps on local disk (Richard Chamberlain)
+
+
 2017-07-21, Version 1.0.0
 =========================
 

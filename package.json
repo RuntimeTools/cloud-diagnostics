@@ -1,6 +1,6 @@
 {
   "name": "cloud-diagnostics",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Support for Node.js dump diagnostics in cloud deployments",
   "repository": {
     "type": "git",
